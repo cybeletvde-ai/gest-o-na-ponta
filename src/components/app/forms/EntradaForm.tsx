@@ -5,8 +5,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { financeActions, useFinance } from "@/lib/finance/store";
-import { formatBRL, todayISO } from "@/lib/finance/logic";
-import type { Method } from "@/lib/finance/types";
+import {
+  formatBRL,
+  normalizeSku,
+  saleDescription,
+  searchItems,
+  todayISO,
+} from "@/lib/finance/logic";
+import type { Method, Servico } from "@/lib/finance/types";
+import type { EntradaPrefill } from "@/lib/ui/quick-actions";
 import { AmountInput, ChoiceGroup, Field, inputClass } from "./fields";
 
 type Errors = Partial<Record<"amount" | "description" | "date" | "clientName", string>>;
@@ -18,15 +25,40 @@ const methods = [
   { value: "debito" as const, label: "Débito", icon: <Wallet /> },
 ];
 
-export function EntradaForm({ onDone }: { onDone: () => void }) {
+export function EntradaForm({
+  onDone,
+  prefill,
+}: {
+  onDone: () => void;
+  prefill?: EntradaPrefill | null;
+}) {
   const { servicos } = useFinance();
-  const [amount, setAmount] = useState(0);
-  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState(prefill?.amount ?? 0);
+  const [description, setDescription] = useState(prefill?.description ?? "");
+  const [typing, setTyping] = useState(false);
   const [method, setMethod] = useState<Method>("pix");
   const [status, setStatus] = useState<"done" | "pending">("done");
   const [date, setDate] = useState("");
   const [clientName, setClientName] = useState("");
   const [errors, setErrors] = useState<Errors>({});
+
+  const picked = servicos.find((s) => saleDescription(s) === description);
+  const suggestions =
+    typing && description.trim() && !picked ? searchItems(servicos, description).slice(0, 4) : [];
+
+  function pick(item: Servico) {
+    setDescription(saleDescription(item));
+    setAmount(item.price);
+    setTyping(false);
+  }
+
+  function onType(text: string) {
+    // Digitou o código exato (ex: 001 ou #POM01)? Preenche na hora.
+    const exact = normalizeSku(text) && servicos.find((s) => s.sku === normalizeSku(text));
+    if (exact) return pick(exact);
+    setDescription(text);
+    setTyping(true);
+  }
 
   function submit() {
     const e: Errors = {};
@@ -55,7 +87,7 @@ export function EntradaForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-3.5"
       onSubmit={(ev) => {
         ev.preventDefault();
         submit();
@@ -72,23 +104,48 @@ export function EntradaForm({ onDone }: { onDone: () => void }) {
         <Input
           id="desc-entrada"
           className={inputClass}
-          placeholder="Ex: Corte, Escova, Banho e Tosa"
+          placeholder="Digite o nome ou código (ex: 001)"
+          autoComplete="off"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => onType(e.target.value)}
         />
+        {suggestions.length > 0 && (
+          <ul
+            aria-label="Sugestões"
+            className="overflow-hidden rounded-xl border border-border bg-surface shadow-action"
+          >
+            {suggestions.map((s) => (
+              <li key={s.id}>
+                <button
+                  type="button"
+                  onClick={() => pick(s)}
+                  className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm hover:bg-muted"
+                >
+                  <span className="rounded-md bg-muted px-1.5 py-0.5 text-[11px] font-bold text-muted-foreground">
+                    #{s.sku}
+                  </span>
+                  <span className="flex-1 truncate font-semibold">{s.name}</span>
+                  <span className="font-bold text-success">{formatBRL(s.price)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
         {servicos.length > 0 && (
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Serviços cadastrados">
+          <div
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-0.5"
+            role="group"
+            aria-label="Itens cadastrados"
+          >
             {servicos.map((s) => (
               <Button
                 key={s.id}
                 type="button"
                 variant="pill"
                 size="pill"
-                aria-pressed={description === s.name}
-                onClick={() => {
-                  setDescription(s.name);
-                  if (s.price && amount === 0) setAmount(s.price);
-                }}
+                className="h-8 shrink-0 px-3 text-xs"
+                aria-pressed={picked?.id === s.id}
+                onClick={() => pick(s)}
               >
                 {s.name}
               </Button>
@@ -101,6 +158,7 @@ export function EntradaForm({ onDone }: { onDone: () => void }) {
         <ChoiceGroup
           label="Forma de pagamento"
           options={methods}
+          columns={4}
           value={method}
           onChange={setMethod}
         />
@@ -119,7 +177,7 @@ export function EntradaForm({ onDone }: { onDone: () => void }) {
       </Field>
 
       {status === "pending" && (
-        <div className="flex flex-col gap-4 rounded-2xl bg-muted p-4">
+        <div className="flex flex-col gap-3 rounded-2xl bg-muted p-3">
           <Field label="Data prevista" htmlFor="data-entrada" error={errors.date}>
             <Input
               id="data-entrada"

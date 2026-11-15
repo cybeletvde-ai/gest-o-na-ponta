@@ -1,9 +1,9 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Home, Wallet, Wrench, ScanLine, Plus, type LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { QuickActionsSheet } from "./QuickActionsSheet";
+import { quickActions } from "@/lib/ui/quick-actions";
 import { cn } from "@/lib/utils";
 
 type Tab = { to: "/" | "/caixa" | "/servicos" | "/raio-x"; label: string; icon: LucideIcon };
@@ -49,8 +49,6 @@ function TabLink({ tab }: { tab: Tab }) {
 }
 
 export function BottomNav() {
-  const [open, setOpen] = useState(false);
-
   return (
     <>
       <nav
@@ -66,7 +64,7 @@ export function BottomNav() {
               variant="fab"
               size="fab"
               aria-label="Novo lançamento"
-              onClick={() => setOpen(true)}
+              onClick={quickActions.open}
               className="absolute -top-7"
             >
               <Plus strokeWidth={3} />
@@ -77,7 +75,7 @@ export function BottomNav() {
           ))}
         </div>
       </nav>
-      <QuickActionsSheet open={open} onOpenChange={setOpen} />
+      <QuickActionsSheet />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { addDays, format } from "date-fns";
-import type { FinanceState, Lancamento } from "./types";
+import type { FinanceState, ItemType, Lancamento, Servico } from "./types";
 
 export function toISODate(d: Date): string {
   return format(d, "yyyy-MM-dd");
@@ -78,15 +78,79 @@ export function formatBRL(cents: number): string {
   return brl.format(cents / 100);
 }
 
+/* ---------- Catálogo (serviços e produtos) ---------- */
+
+export function seedItems(): Servico[] {
+  return [
+    { id: "i-001", sku: "001", type: "servico", name: "Corte de Cabelo", price: 4000, cost: 500 },
+    { id: "i-002", sku: "002", type: "servico", name: "Barba Completa", price: 3000, cost: 400 },
+    { id: "i-pom01", sku: "POM01", type: "produto", name: "Pomada Modeladora", price: 4500, cost: 2000 },
+    { id: "i-hid01", sku: "HID01", type: "servico", name: "Hidratação Capilar", price: 8000, cost: 1500 },
+  ];
+}
+
+/** Limpa o código digitado: tira "#", espaços e deixa em maiúsculas. */
+export function normalizeSku(raw: string): string {
+  return raw.replace(/#/g, "").replace(/\s+/g, "").toUpperCase();
+}
+
+/** Próximo código automático: maior código só de números + 1, com 3 dígitos (#001, #002...). */
+export function nextSku(items: Servico[]): string {
+  const max = items.reduce((m, i) => (/^\d+$/.test(i.sku) ? Math.max(m, parseInt(i.sku, 10)) : m), 0);
+  return String(max + 1).padStart(3, "0");
+}
+
+export function skuTaken(items: Servico[], sku: string, exceptId?: string): boolean {
+  const n = normalizeSku(sku);
+  return items.some((i) => i.id !== exceptId && normalizeSku(i.sku) === n);
+}
+
+/** Lucro por venda = preço − custo. Sem custo cadastrado, não há lucro a mostrar. */
+export function profitOf(item: Pick<Servico, "price" | "cost">): number | undefined {
+  return item.cost ? item.price - item.cost : undefined;
+}
+
+/** Descrição usada ao vender: "Corte de Cabelo (#001)". */
+export function saleDescription(item: Pick<Servico, "name" | "sku">): string {
+  return `${item.name} (#${item.sku})`;
+}
+
+function fold(s: string) {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+/** Busca por nome ou código (com ou sem "#"), opcionalmente só de um tipo. */
+export function searchItems(
+  items: Servico[],
+  query: string,
+  type: ItemType | "todos" = "todos",
+): Servico[] {
+  const q = fold(query.replace(/#/g, ""));
+  return items.filter((i) => {
+    if (type !== "todos" && i.type !== type) return false;
+    if (!q) return true;
+    return fold(i.name).includes(q) || fold(i.sku).includes(q);
+  });
+}
+
+export function upsertItem(state: FinanceState, item: Servico): FinanceState {
+  const exists = state.servicos.some((s) => s.id === item.id);
+  return {
+    ...state,
+    servicos: exists
+      ? state.servicos.map((s) => (s.id === item.id ? item : s))
+      : [...state.servicos, item],
+  };
+}
+
+export function removeItem(state: FinanceState, id: string): FinanceState {
+  return { ...state, servicos: state.servicos.filter((s) => s.id !== id) };
+}
+
 export function seedState(now: Date = new Date()): FinanceState {
   const t = now.getTime();
   return {
-    servicos: [
-      { id: "s-corte", name: "Corte", price: 4500 },
-      { id: "s-escova", name: "Escova", price: 6000 },
-      { id: "s-banho", name: "Banho e Tosa", price: 7000 },
-      { id: "s-manicure", name: "Manicure", price: 3500 },
-    ],
+    servicos: seedItems(),
     lancamentos: [
       {
         id: "seed-1",

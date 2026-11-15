@@ -38,9 +38,9 @@ const buttonVariants = cva(
         icon: "h-9 w-9",
         action: "h-16 w-full justify-start gap-4 rounded-2xl px-5 text-base font-bold [&_svg]:size-6",
         fab: "h-16 w-16 [&_svg]:size-8",
-        choice: "h-14 flex-1 px-3 text-sm font-bold [&_svg]:size-5",
+        choice: "h-12 flex-1 px-3 text-sm font-bold [&_svg]:size-5",
         pill: "h-9 px-4 text-sm font-semibold",
-        submit: "h-14 w-full rounded-2xl text-base font-extrabold [&_svg]:size-5",
+        submit: "h-13 w-full rounded-2xl text-base font-extrabold [&_svg]:size-5",
       },
     },
     defaultVariants: {

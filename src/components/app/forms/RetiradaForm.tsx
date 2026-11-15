@@ -35,7 +35,7 @@ export function RetiradaForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-3.5"
       onSubmit={(ev) => {
         ev.preventDefault();
         submit();

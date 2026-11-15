@@ -15,7 +15,7 @@ export function Field({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       <label
         htmlFor={htmlFor}
         className="text-xs font-bold uppercase tracking-wide text-muted-foreground"
@@ -33,11 +33,15 @@ export function AmountInput({
   onChange,
   tone,
   id = "valor",
+  label = "Valor (R$)",
+  size = "lg",
 }: {
   value: number;
   onChange: (cents: number) => void;
   tone: "success" | "destructive" | "primary";
   id?: string;
+  label?: string;
+  size?: "lg" | "md";
 }) {
   const toneClass = {
     success: "text-success focus-within:border-success",
@@ -47,12 +51,12 @@ export function AmountInput({
   return (
     <div
       className={cn(
-        "rounded-2xl border-2 border-border bg-muted px-4 py-3 transition-colors",
+        "rounded-2xl border-2 border-border bg-muted px-4 py-2 transition-colors",
         toneClass,
       )}
     >
       <label htmlFor={id} className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-        Valor (R$)
+        {label}
       </label>
       <input
         id={id}
@@ -60,7 +64,10 @@ export function AmountInput({
         autoComplete="off"
         value={formatBRL(value)}
         onChange={(e) => onChange(digitsToCents(e.target.value))}
-        className="mt-1 w-full bg-transparent text-4xl font-extrabold tracking-tight outline-none"
+        className={cn(
+          "w-full bg-transparent font-extrabold tracking-tight outline-none",
+          size === "lg" ? "text-3xl" : "text-xl",
+        )}
       />
     </div>
   );
@@ -72,18 +79,25 @@ export function ChoiceGroup<T extends string>({
   onChange,
   variant = "choice",
   label,
+  columns = 2,
 }: {
   options: { value: T; label: string; icon?: ReactNode }[];
   value: T | undefined;
   onChange: (v: T) => void;
   variant?: "choice" | "pill";
   label: string;
+  columns?: 2 | 4;
 }) {
+  const stacked = variant === "choice" && columns === 4;
   return (
     <div
       role="group"
       aria-label={label}
-      className={cn(variant === "choice" ? "grid grid-cols-2 gap-2" : "flex flex-wrap gap-2")}
+      className={cn(
+        variant === "choice"
+          ? cn("grid gap-2", columns === 4 ? "grid-cols-4" : "grid-cols-2")
+          : "flex flex-wrap gap-2",
+      )}
     >
       {options.map((o) => (
         <Button
@@ -93,6 +107,7 @@ export function ChoiceGroup<T extends string>({
           size={variant}
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
+          className={stacked ? "h-14 flex-col gap-1 px-1 text-xs" : undefined}
         >
           {o.icon}
           {o.label}
@@ -102,4 +117,4 @@ export function ChoiceGroup<T extends string>({
   );
 }
 
-export const inputClass = "h-12 rounded-xl bg-surface px-4 text-base";
+export const inputClass = "h-11 rounded-xl bg-surface px-4 text-base";

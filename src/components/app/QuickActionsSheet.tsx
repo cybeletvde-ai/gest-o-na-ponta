@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ArrowDownLeft, ArrowUpRight, ChevronLeft, HandCoins } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,7 @@ import type { Kind } from "@/lib/finance/types";
 import { EntradaForm } from "./forms/EntradaForm";
 import { SaidaForm } from "./forms/SaidaForm";
 import { RetiradaForm } from "./forms/RetiradaForm";
-
-type Props = { open: boolean; onOpenChange: (open: boolean) => void };
+import { quickActions, useQuickActions } from "@/lib/ui/quick-actions";
 
 const actions = [
   { kind: "entrada", label: "Registrar Entrada", hint: "Dinheiro que entrou", icon: ArrowDownLeft },
@@ -28,21 +27,23 @@ const titles: Record<Kind, string> = {
   retirada: "Minha Retirada",
 };
 
-export function QuickActionsSheet({ open, onOpenChange }: Props) {
-  const [mode, setMode] = useState<Kind | null>(null);
+export function QuickActionsSheet() {
+  const { open, mode, prefill, key } = useQuickActions();
+  const setMode = quickActions.setMode;
+  const onOpenChange = (o: boolean) => (o ? undefined : quickActions.close());
 
   useEffect(() => {
     if (open) return undefined;
-    const t = setTimeout(() => setMode(null), 300);
+    const t = setTimeout(quickActions.reset, 300);
     return () => clearTimeout(t);
   }, [open]);
 
-  const close = () => onOpenChange(false);
+  const close = quickActions.close;
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} shouldScaleBackground={false}>
       <DrawerContent className="mx-auto max-h-[94dvh] max-w-md rounded-t-3xl border-none bg-surface">
-        <DrawerHeader className="flex items-center gap-2 pb-2 text-left">
+        <DrawerHeader className="flex items-center gap-2 pt-3 pb-1 text-left">
           {mode && (
             <Button
               variant="ghost"
@@ -64,7 +65,7 @@ export function QuickActionsSheet({ open, onOpenChange }: Props) {
           </div>
         </DrawerHeader>
 
-        <div className="overflow-y-auto px-4 pt-2 pb-[calc(2rem+env(safe-area-inset-bottom))]">
+        <div className="overflow-y-auto px-4 pt-1 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">
           {mode === null && (
             <div className="flex flex-col gap-3">
               {actions.map(({ kind, label, hint, icon: Icon }) => (
@@ -80,7 +81,9 @@ export function QuickActionsSheet({ open, onOpenChange }: Props) {
               ))}
             </div>
           )}
-          {mode === "entrada" && <EntradaForm onDone={close} />}
+          {mode === "entrada" && (
+            <EntradaForm key={key} prefill={prefill} onDone={close} />
+          )}
           {mode === "saida" && <SaidaForm onDone={close} />}
           {mode === "retirada" && <RetiradaForm onDone={close} />}
         </div>

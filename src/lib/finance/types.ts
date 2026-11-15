@@ -18,11 +18,18 @@ export interface Lancamento {
   createdAt: number;
 }
 
+export type ItemType = "servico" | "produto";
+
 export interface Servico {
   id: string;
+  /** Código sem o "#" (ex: "001", "POM01"). */
+  sku: string;
+  type: ItemType;
   name: string;
-  /** Preço sugerido em centavos. */
-  price?: number | undefined;
+  /** Preço de venda em centavos. */
+  price: number;
+  /** Custo de produto/comissão em centavos (opcional). */
+  cost?: number | undefined;
 }
 
 export interface FinanceState {
@@ -42,4 +49,9 @@ export const CATEGORY_LABEL: Record<Category, string> = {
   contas_fixas: "Contas Fixas",
   impostos: "Impostos/MEI",
   outros: "Outros",
+};
+
+export const ITEM_TYPE_LABEL: Record<ItemType, string> = {
+  servico: "Serviço",
+  produto: "Produto",
 };

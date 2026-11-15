@@ -5,11 +5,13 @@ export function PageShell({
   title,
   subtitle,
   icon: Icon,
+  action,
   children,
 }: {
   title: string;
   subtitle: string;
   icon: LucideIcon;
+  action?: ReactNode;
   children?: ReactNode;
 }) {
   return (
@@ -18,10 +20,11 @@ export function PageShell({
         <span className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-primary">
           <Icon className="size-6" />
         </span>
-        <div>
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
+        {action}
       </header>
       {children ?? (
         <div className="rounded-3xl border border-dashed border-border bg-surface p-8 text-center text-sm text-muted-foreground">

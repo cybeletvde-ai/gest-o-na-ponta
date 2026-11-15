@@ -48,7 +48,7 @@ export function SaidaForm({ onDone }: { onDone: () => void }) {
 
   return (
     <form
-      className="flex flex-col gap-5"
+      className="flex flex-col gap-3.5"
       onSubmit={(ev) => {
         ev.preventDefault();
         submit();
@@ -94,7 +94,7 @@ export function SaidaForm({ onDone }: { onDone: () => void }) {
       </Field>
 
       {status === "pending" && (
-        <div className="rounded-2xl bg-muted p-4">
+        <div className="rounded-2xl bg-muted p-3">
           <Field label="Data de vencimento" htmlFor="venc" error={errors.date}>
             <Input
               id="venc"
