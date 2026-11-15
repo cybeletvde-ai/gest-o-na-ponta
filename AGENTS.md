@@ -28,3 +28,6 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- The bottom navigation and + action sheet live in `src/components/app/` and are mounted once in `src/routes/__root.tsx`, so every tab route gets them without repeating code.

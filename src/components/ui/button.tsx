@@ -16,12 +16,21 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        entrada:
+          "bg-success text-success-foreground shadow-action hover:bg-success/90 active:scale-[0.98]",
+        saida:
+          "bg-destructive text-destructive-foreground shadow-action hover:bg-destructive/90 active:scale-[0.98]",
+        retirada:
+          "bg-primary text-primary-foreground shadow-action hover:bg-primary/90 active:scale-[0.98]",
+        fab: "rounded-full bg-success text-success-foreground shadow-fab ring-4 ring-surface hover:bg-success/90 active:scale-95",
       },
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",
         lg: "h-10 rounded-md px-8",
         icon: "h-9 w-9",
+        action: "h-16 w-full justify-start gap-4 rounded-2xl px-5 text-base font-bold [&_svg]:size-6",
+        fab: "h-16 w-16 [&_svg]:size-8",
       },
     },
     defaultVariants: {
