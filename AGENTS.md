@@ -31,3 +31,4 @@ use the editor.
 
 ## Project rules
 - The bottom navigation and + action sheet live in `src/components/app/` and are mounted once in `src/routes/__root.tsx`, so every tab route gets them without repeating code.
+- Finance data (lançamentos, serviços) lives behind `src/lib/finance/store.ts` (device localStorage for now); pure rules (balance, settle, totals) live in `src/lib/finance/logic.ts` with tests, so storage can move online without touching screens.

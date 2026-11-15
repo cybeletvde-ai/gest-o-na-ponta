@@ -22,6 +22,13 @@ const buttonVariants = cva(
           "bg-destructive text-destructive-foreground shadow-action hover:bg-destructive/90 active:scale-[0.98]",
         retirada:
           "bg-primary text-primary-foreground shadow-action hover:bg-primary/90 active:scale-[0.98]",
+        choice:
+          "rounded-2xl border-2 border-border bg-surface text-foreground hover:bg-muted aria-pressed:border-primary aria-pressed:bg-secondary aria-pressed:text-primary aria-pressed:hover:bg-secondary",
+        pill: "rounded-full border border-border bg-surface text-foreground hover:bg-muted aria-pressed:border-primary aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:hover:bg-primary",
+        "quick-receive":
+          "rounded-full bg-success text-success-foreground shadow-sm hover:bg-success/90 active:scale-95",
+        "quick-pay":
+          "rounded-full bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:scale-95",
         fab: "rounded-full bg-success text-success-foreground shadow-fab ring-4 ring-surface hover:bg-success/90 active:scale-95",
       },
       size: {
@@ -31,6 +38,9 @@ const buttonVariants = cva(
         icon: "h-9 w-9",
         action: "h-16 w-full justify-start gap-4 rounded-2xl px-5 text-base font-bold [&_svg]:size-6",
         fab: "h-16 w-16 [&_svg]:size-8",
+        choice: "h-14 flex-1 px-3 text-sm font-bold [&_svg]:size-5",
+        pill: "h-9 px-4 text-sm font-semibold",
+        submit: "h-14 w-full rounded-2xl text-base font-extrabold [&_svg]:size-5",
       },
     },
     defaultVariants: {
