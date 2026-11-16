@@ -65,7 +65,7 @@ export function SaidaForm({ onDone }: { onDone: () => void }) {
         <Input
           id="desc-saida"
           className={inputClass}
-          placeholder="Ex: Aluguel, Produtos, Conta de Luz"
+          placeholder="Ex: Aluguel, materiais, combustível, conta de luz"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />

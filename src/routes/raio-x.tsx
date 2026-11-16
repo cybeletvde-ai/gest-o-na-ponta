@@ -30,12 +30,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/raio-x")({
   head: () => ({
     meta: [
-      { title: "Raio-X — A saúde do seu negócio | Meu Caixa" },
+      { title: "Raio-X — A saúde do seu negócio | Meu Negócio no Azul" },
       {
         name: "description",
         content: "Lucro real, para onde foi o dinheiro, campeões de venda e formas de pagamento.",
       },
-      { property: "og:title", content: "Raio-X — A saúde do seu negócio | Meu Caixa" },
+      { property: "og:title", content: "Raio-X — A saúde do seu negócio | Meu Negócio no Azul" },
       {
         property: "og:description",
         content: "Lucro real, para onde foi o dinheiro, campeões de venda e formas de pagamento.",
@@ -50,7 +50,9 @@ export const Route = createFileRoute("/raio-x")({
 const periods = Object.keys(PERIOD_LABEL) as Period[];
 
 const bucketColor: Record<OutBucket, string> = {
-  produtos: "bg-chart-3",
+  materiais: "bg-chart-3",
+  combustivel: "bg-warning",
+  ferramentas: "bg-chart-2",
   contas_fixas: "bg-chart-4",
   impostos: "bg-chart-5",
   retirada: "bg-primary",

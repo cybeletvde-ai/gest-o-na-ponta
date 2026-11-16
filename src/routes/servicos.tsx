@@ -26,12 +26,12 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/servicos")({
   head: () => ({
     meta: [
-      { title: "Serviços e Produtos — Meu Caixa" },
+      { title: "Serviços e Produtos — Meu Negócio no Azul" },
       {
         name: "description",
         content: "Cadastre serviços e produtos com código, preço, custo e lucro por venda.",
       },
-      { property: "og:title", content: "Serviços e Produtos — Meu Caixa" },
+      { property: "og:title", content: "Serviços e Produtos — Meu Negócio no Azul" },
       {
         property: "og:description",
         content: "Cadastre serviços e produtos com código, preço, custo e lucro por venda.",

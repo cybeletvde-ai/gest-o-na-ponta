@@ -1,6 +1,12 @@
 export type Kind = "entrada" | "saida" | "retirada";
 export type Method = "pix" | "dinheiro" | "credito" | "debito";
-export type Category = "produtos" | "contas_fixas" | "impostos" | "outros";
+export type Category =
+  | "materiais"
+  | "combustivel"
+  | "ferramentas"
+  | "contas_fixas"
+  | "impostos"
+  | "outros";
 export type Status = "done" | "pending";
 
 export interface Lancamento {
@@ -22,7 +28,7 @@ export type ItemType = "servico" | "produto";
 
 export interface Servico {
   id: string;
-  /** Código sem o "#" (ex: "001", "POM01"). */
+  /** Código sem o "#" (ex: "001", "PRD01"). */
   sku: string;
   type: ItemType;
   name: string;
@@ -45,9 +51,11 @@ export const METHOD_LABEL: Record<Method, string> = {
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
-  produtos: "Produtos/Insumos",
+  materiais: "Materiais / Insumos",
+  combustivel: "Combustível / Deslocamento",
+  ferramentas: "Ferramentas / Equipamentos",
   contas_fixas: "Contas Fixas",
-  impostos: "Impostos/MEI",
+  impostos: "Impostos / MEI",
   outros: "Outros",
 };
 
