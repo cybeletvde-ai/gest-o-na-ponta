@@ -55,6 +55,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-surface: var(--surface);
   --color-overlay: var(--overlay);
   --shadow-bar: var(--shadow-bar);
@@ -89,7 +91,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.03 220);
   /* Azul Petróleo */
-  --primary: oklch(0.45 0.08 215);
+  --primary: oklch(0.387 0.064 220);
   --primary-foreground: oklch(0.99 0.003 200);
   --secondary: oklch(0.94 0.015 210);
   --secondary-foreground: oklch(0.3 0.06 215);
@@ -101,31 +103,34 @@
   --destructive: oklch(0.6 0.21 25);
   --destructive-foreground: oklch(0.99 0.003 200);
   /* Verde Esmeralda */
-  --success: oklch(0.68 0.15 162);
+  --success: oklch(0.696 0.149 162.5);
   --success-foreground: oklch(0.99 0.003 200);
+  /* Âmbar (alerta) */
+  --warning: oklch(0.77 0.16 70);
+  --warning-foreground: oklch(0.42 0.1 60);
   --surface: oklch(1 0 0);
   --overlay: oklch(0.2 0.03 220 / 0.55);
   --border: oklch(0.91 0.01 210);
   --input: oklch(0.91 0.01 210);
-  --ring: oklch(0.45 0.08 215);
-  --chart-1: oklch(0.45 0.08 215);
+  --ring: oklch(0.387 0.064 220);
+  --chart-1: oklch(0.387 0.064 220);
   --chart-2: oklch(0.68 0.15 162);
   --chart-3: oklch(0.6 0.21 25);
   --chart-4: oklch(0.8 0.14 85);
   --chart-5: oklch(0.6 0.05 240);
   --sidebar: oklch(0.99 0.003 200);
   --sidebar-foreground: oklch(0.22 0.03 220);
-  --sidebar-primary: oklch(0.45 0.08 215);
+  --sidebar-primary: oklch(0.387 0.064 220);
   --sidebar-primary-foreground: oklch(0.99 0.003 200);
   --sidebar-accent: oklch(0.94 0.02 210);
   --sidebar-accent-foreground: oklch(0.3 0.06 215);
   --sidebar-border: oklch(0.91 0.01 210);
-  --sidebar-ring: oklch(0.45 0.08 215);
+  --sidebar-ring: oklch(0.387 0.064 220);
 
   --shadow-bar: 0 -6px 24px -8px oklch(0.3 0.05 215 / 0.18);
   --shadow-fab: 0 10px 24px -6px oklch(0.55 0.15 162 / 0.55);
   --shadow-action: 0 8px 20px -10px oklch(0.3 0.05 215 / 0.45);
-  --gradient-hero: linear-gradient(135deg, oklch(0.45 0.08 215), oklch(0.36 0.07 220));
+  --gradient-hero: linear-gradient(135deg, oklch(0.387 0.064 220), oklch(0.36 0.07 220));
 }
 
 @layer base {

@@ -32,3 +32,5 @@ use the editor.
 ## Project rules
 - The bottom navigation and + action sheet live in `src/components/app/` and are mounted once in `src/routes/__root.tsx`, so every tab route gets them without repeating code.
 - Finance data (lançamentos, serviços) lives behind `src/lib/finance/store.ts` (device localStorage for now); pure rules (balance, settle, totals) live in `src/lib/finance/logic.ts` with tests, so storage can move online without touching screens.
+- Raio-X reports are computed by pure functions in `src/lib/finance/insights.ts` (with tests) from the same lançamentos and catalog, so the report always matches Caixa without storing extra data.
+- The + sheet's open/mode/prefill state lives in `src/lib/ui/quick-actions.ts`, so any screen (e.g. Vender) can open a prefilled Registrar Entrada.
