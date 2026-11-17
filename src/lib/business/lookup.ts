@@ -85,6 +85,6 @@ export async function lookupCep(cep: string): Promise<Partial<Profile>> {
     bairro: d.bairro ?? "",
     cidade: d.localidade ?? "",
     uf: d.uf ?? "",
-    ...(d.complemento ? { complemento: d.complemento } : {}),
+    // O "complemento" do ViaCEP é a faixa de números da rua (ex: "de 612 a 1510"), não o do cliente.
   };
 }

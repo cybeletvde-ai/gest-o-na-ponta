@@ -1,6 +1,7 @@
 import { useState, type ComponentProps } from "react";
 import { Building2, CheckCircle2, Loader2, LogOut, MapPin, Search, UserRound } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +35,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type ErrKey = "creditFee" | "debitFee" | "adminName" | "nomeFantasia" | "cnpj" | "cep" | "emailComercial";
 
 export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boolean }) {
+  const navigate = useNavigate();
   const [p, setP] = useState<Profile>(initial);
   const [creditFee, setCreditFee] = useState(formatPercent(initial.creditFee));
   const [debitFee, setDebitFee] = useState(formatPercent(initial.debitFee));
@@ -124,6 +126,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
   async function logout() {
     setBusy("logout");
     await authActions.signOut();
+    void navigate({ to: "/", replace: true });
   }
 
   return (
