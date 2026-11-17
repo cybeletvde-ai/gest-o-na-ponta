@@ -1,5 +1,5 @@
 import { useState, type ComponentProps } from "react";
-import { Building2, Loader2, LogOut, MapPin, Search, UserRound } from "lucide-react";
+import { Building2, CheckCircle2, Loader2, LogOut, MapPin, Search, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ import {
 import { lookupCep, lookupCnpj } from "@/lib/business/lookup";
 import { ENQUADRAMENTO_LABEL, type Enquadramento, type Profile } from "@/lib/business/types";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ChangePassword } from "./ChangePassword";
 import { SettingsCard } from "./SettingsCard";
 
 type TextKey = Exclude<keyof Profile, "creditFee" | "debitFee" | "enquadramento">;
@@ -29,14 +31,21 @@ const enquadramentos = (Object.keys(ENQUADRAMENTO_LABEL) as Enquadramento[]).map
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+type ErrKey = "creditFee" | "debitFee" | "adminName" | "nomeFantasia" | "cnpj" | "cep" | "emailComercial";
+
 export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boolean }) {
   const [p, setP] = useState<Profile>(initial);
   const [creditFee, setCreditFee] = useState(formatPercent(initial.creditFee));
   const [debitFee, setDebitFee] = useState(formatPercent(initial.debitFee));
-  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<ErrKey, string | undefined>>>({});
   const [busy, setBusy] = useState<null | "cnpj" | "cep" | "save" | "logout">(null);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
+  const isento = p.inscricaoEstadual.trim().toUpperCase() === "ISENTO";
 
-  const update = (patch: Partial<Profile>) => setP((prev) => ({ ...prev, ...patch }));
+  const update = (patch: Partial<Profile>) => {
+    setSavedAt(null);
+    setP((prev) => ({ ...prev, ...patch }));
+  };
 
   function text(key: TextKey, extra?: Partial<ComponentProps<typeof Input>>) {
     return (
@@ -80,7 +89,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
   }
 
   async function save() {
-    const e: Record<string, string> = {};
+    const e: Partial<Record<ErrKey, string | undefined>> = {};
     const credit = parsePercent(creditFee);
     const debit = parsePercent(debitFee);
     if (credit === null) e.creditFee = "Use um número de 0 a 99,99.";
@@ -104,7 +113,11 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
       uf: p.uf.trim().toUpperCase(),
     });
     setBusy(null);
-    if (!ok) return toast.error("Não foi possível salvar. Tente novamente.");
+    if (!ok) {
+      toast.error("Não foi possível salvar. Tente novamente.");
+      return;
+    }
+    setSavedAt(Date.now());
     toast.success(isDemo ? "Salvo só nesta demonstração." : "Dados da empresa salvos!");
   }
 
@@ -134,6 +147,13 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
         </Field>
         <Field label="E-mail" htmlFor="empresa-email">
           {text("email", { type: "email", readOnly: true, className: cn(inputClass, "bg-muted text-muted-foreground") })}
+        </Field>
+        <Field label="Senha">
+          {isDemo ? (
+            <p className="text-sm text-muted-foreground">Na demonstração não há senha para alterar.</p>
+          ) : (
+            <ChangePassword />
+          )}
         </Field>
         <Field label="Celular / WhatsApp" htmlFor="empresa-phone">
           <Input
@@ -221,7 +241,14 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label="Inscrição Estadual (IE)" htmlFor="empresa-inscricaoEstadual">
-            {text("inscricaoEstadual", { placeholder: "Isento" })}
+            {text("inscricaoEstadual", { disabled: isento, placeholder: "Ex: 123.456.789" })}
+            <label className="flex items-center gap-2 text-sm font-semibold">
+              <Checkbox
+                checked={isento}
+                onCheckedChange={(c) => update({ inscricaoEstadual: c === true ? "ISENTO" : "" })}
+              />
+              Isento
+            </label>
           </Field>
           <Field label="Inscrição Municipal (IM)" htmlFor="empresa-inscricaoMunicipal">
             {text("inscricaoMunicipal")}
@@ -255,7 +282,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
             )}
           </div>
         </Field>
-        <Field label="Logradouro" htmlFor="empresa-logradouro">
+        <Field label="Logradouro (Rua/Av)" htmlFor="empresa-logradouro">
           {text("logradouro", { autoComplete: "address-line1" })}
         </Field>
         <div className="grid grid-cols-[1fr_2fr] gap-3">
@@ -285,7 +312,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Telefone" htmlFor="empresa-telefone">
+          <Field label="Telefone Fixo" htmlFor="empresa-telefone">
             <Input
               id="empresa-telefone"
               className={inputClass}
@@ -295,7 +322,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
               onChange={(e) => update({ telefone: maskPhone(e.target.value) })}
             />
           </Field>
-          <Field label="Celular" htmlFor="empresa-celular">
+          <Field label="Celular Comercial" htmlFor="empresa-celular">
             <Input
               id="empresa-celular"
               className={inputClass}
@@ -306,7 +333,7 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
             />
           </Field>
         </div>
-        <Field label="E-mail Comercial" htmlFor="empresa-emailComercial" error={errors.emailComercial}>
+        <Field label="E-mail da Empresa" htmlFor="empresa-emailComercial" error={errors.emailComercial}>
           {text("emailComercial", { type: "email", inputMode: "email", placeholder: "contato@empresa.com" })}
         </Field>
       </SettingsCard>
@@ -314,6 +341,15 @@ export function EmpresaForm({ initial, isDemo }: { initial: Profile; isDemo: boo
       <Button type="submit" variant="entrada" size="submit" disabled={busy === "save"}>
         {busy === "save" ? "Salvando..." : "Salvar Dados da Empresa"}
       </Button>
+      {savedAt && (
+        <p
+          role="status"
+          className="-mt-1 flex items-center justify-center gap-1.5 rounded-2xl bg-success/15 px-4 py-3 text-sm font-bold text-success"
+        >
+          <CheckCircle2 className="size-5" />
+          {isDemo ? "Salvo só nesta demonstração." : "Dados da empresa salvos com sucesso!"}
+        </p>
+      )}
       <Button
         type="button"
         variant="outline"

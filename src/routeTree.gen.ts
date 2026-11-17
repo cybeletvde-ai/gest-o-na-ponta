@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixaRouteImport } from './routes/caixa'
 import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as RaioXRouteImport } from './routes/raio-x'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ServicosRouteImport } from './routes/servicos'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
@@ -36,6 +37,11 @@ const RaioXRoute = RaioXRouteImport.update({
   path: '/raio-x',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicosRoute = ServicosRouteImport.update({
   id: '/servicos',
   path: '/servicos',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/caixa': typeof CaixaRoute
   '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/auth/callback': typeof AuthCallbackRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/caixa': typeof CaixaRoute
   '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/auth/callback': typeof AuthCallbackRoute
 }
@@ -69,21 +77,36 @@ export interface FileRoutesById {
   '/caixa': typeof CaixaRoute
   '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/servicos': typeof ServicosRoute
   '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/caixa' | '/empresa' | '/raio-x' | '/servicos' | '/auth/callback'
+    | '/'
+    | '/caixa'
+    | '/empresa'
+    | '/raio-x'
+    | '/reset-password'
+    | '/servicos'
+    | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/caixa' | '/empresa' | '/raio-x' | '/servicos' | '/auth/callback'
+  to:
+    | '/'
+    | '/caixa'
+    | '/empresa'
+    | '/raio-x'
+    | '/reset-password'
+    | '/servicos'
+    | '/auth/callback'
   id:
     | '__root__'
     | '/'
     | '/caixa'
     | '/empresa'
     | '/raio-x'
+    | '/reset-password'
     | '/servicos'
     | '/auth/callback'
   fileRoutesById: FileRoutesById
@@ -93,6 +116,7 @@ export interface RootRouteChildren {
   CaixaRoute: typeof CaixaRoute
   EmpresaRoute: typeof EmpresaRoute
   RaioXRoute: typeof RaioXRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ServicosRoute: typeof ServicosRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
 }
@@ -127,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RaioXRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/servicos': {
       id: '/servicos'
       path: '/servicos'
@@ -149,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaixaRoute: CaixaRoute,
   EmpresaRoute: EmpresaRoute,
   RaioXRoute: RaioXRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ServicosRoute: ServicosRoute,
   AuthCallbackRoute: AuthCallbackRoute,
 }

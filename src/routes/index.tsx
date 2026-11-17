@@ -43,8 +43,8 @@ function Index() {
 
   return (
     <PageShell
-      title={profile.nomeFantasia || "Meu Negócio"}
-      subtitle={name ? `Olá, ${name}! Veja como está seu negócio hoje` : "Veja como está seu negócio hoje"}
+      title={`Olá, ${profile.nomeFantasia || name || "Empreendedor"}`}
+      subtitle="Veja como está seu negócio hoje"
       icon={Home}
       action={
         <Link

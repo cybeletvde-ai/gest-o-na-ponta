@@ -7,4 +7,7 @@
 - [x] Compact Entrada/Saída forms
 - [x] Raio-X tab: period filter, lucro real card, saídas por categoria, campeões de venda, formas de pagamento
 - [x] Bottom padding on all 4 tabs so nothing hides behind the bar / + button
-- [ ] Optional: save data online with login (Lovable Cloud) — waiting on user decision
+- [ ] Multi-user: Lovable Cloud, data saved online per account
+- [ ] Login / Criar Conta / Esqueci senha / Modo Demonstração
+- [ ] Início header "Olá, {Nome Fantasia}" + gear → Minha Empresa
+- [ ] Minha Empresa & Configurações (admin, fiscal + BrasilAPI CNPJ, endereço + ViaCEP, salvar, logout)

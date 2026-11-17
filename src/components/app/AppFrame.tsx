@@ -10,7 +10,7 @@ export function AppFrame() {
   const session = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  if (pathname.startsWith("/auth/")) return <Outlet />;
+  if (pathname.startsWith("/auth/") || pathname === "/reset-password") return <Outlet />;
 
   if (session.status === "loading") {
     return (

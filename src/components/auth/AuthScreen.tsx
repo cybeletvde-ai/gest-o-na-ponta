@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, inputClass } from "@/components/app/forms/fields";
 import { authActions, useSession } from "@/lib/auth/session";
-import { authRedirectUrl, getSupabase } from "@/lib/supabase/client";
+import { authRedirectUrl, getSupabase, resetRedirectUrl } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "./BrandMark";
 import { PasswordInput } from "./PasswordInput";
@@ -97,6 +97,7 @@ export function AuthScreen() {
 }
 
 function LoginForm() {
+  const [forgot, setForgot] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -119,6 +120,8 @@ function LoginForm() {
       setLoading(false);
     }
   }
+
+  if (forgot) return <ForgotForm initialEmail={email} onBack={() => setForgot(false)} />;
 
   return (
     <form
@@ -149,6 +152,13 @@ function LoginForm() {
           onChange={setPassword}
         />
       </Field>
+      <button
+        type="button"
+        onClick={() => setForgot(true)}
+        className="-mt-1 self-end text-sm font-bold text-primary underline-offset-4 hover:underline"
+      >
+        Esqueci minha senha
+      </button>
       {error && (
         <p role="alert" className="text-sm font-semibold text-destructive">
           {error}
@@ -278,6 +288,90 @@ function SignUpForm({ onGoToLogin }: { onGoToLogin: () => void }) {
       )}
       <Button type="submit" variant="entrada" size="submit" disabled={loading}>
         {loading ? "Criando conta..." : "Criar Conta e Começar"}
+      </Button>
+    </form>
+  );
+}
+
+function ForgotForm({ initialEmail, onBack }: { initialEmail: string; onBack: () => void }) {
+  const [email, setEmail] = useState(initialEmail);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  async function submit() {
+    setError(null);
+    if (!EMAIL_RE.test(email.trim())) return setError("Digite um e-mail válido.");
+    setLoading(true);
+    try {
+      const { error: err } = await getSupabase().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: resetRedirectUrl(),
+      });
+      if (err && (err.status === 429 || err.code === "over_email_send_rate_limit"))
+        setError("Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.");
+      else setSent(true);
+    } catch {
+      setError("Não foi possível conectar. Verifique sua internet.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="flex flex-col items-center gap-3 py-4 text-center" role="status">
+        <span className="flex size-12 items-center justify-center rounded-2xl bg-success/15 text-success">
+          <MailCheck className="size-6" />
+        </span>
+        <h2 className="text-lg font-extrabold">Verifique seu e-mail</h2>
+        <p className="text-sm text-muted-foreground text-pretty">
+          Se existir uma conta com <strong className="text-foreground">{email.trim()}</strong>,
+          enviamos um link para você criar uma nova senha.
+        </p>
+        <Button variant="outline" className="mt-2 h-11 rounded-xl" onClick={onBack}>
+          Voltar para Entrar
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <form
+      className="flex flex-col gap-3.5"
+      noValidate
+      onSubmit={(e) => {
+        e.preventDefault();
+        void submit();
+      }}
+    >
+      <div>
+        <h2 className="text-lg font-extrabold">Esqueci minha senha</h2>
+        <p className="text-sm text-muted-foreground text-pretty">
+          Digite seu e-mail e enviaremos um link para criar uma nova senha.
+        </p>
+      </div>
+      <Field label="E-mail" htmlFor="forgot-email">
+        <Input
+          id="forgot-email"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          className={inputClass}
+          placeholder="voce@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </Field>
+      {error && (
+        <p role="alert" className="text-sm font-semibold text-destructive">
+          {error}
+        </p>
+      )}
+      <Button type="submit" variant="entrada" size="submit" disabled={loading}>
+        {loading ? "Enviando..." : "Enviar link"}
+      </Button>
+      <Button type="button" variant="ghost" className="h-11 rounded-xl font-semibold" onClick={onBack}>
+        Voltar para Entrar
       </Button>
     </form>
   );
