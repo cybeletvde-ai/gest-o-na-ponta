@@ -11,11 +11,11 @@ const l = (p: Partial<Lancamento>): Lancamento => ({
 });
 
 const items: Lancamento[] = [
-  l({ amount: 4000, description: "Corte de Cabelo (#001)", method: "pix" }),
-  l({ amount: 4000, description: "Corte de Cabelo (#001)", method: "dinheiro" }),
-  l({ amount: 8000, description: "Hidratação Capilar (#HID01)", method: "credito" }),
-  l({ amount: 4000, description: "Corte de Cabelo", method: "pix" }),
-  l({ kind: "saida", amount: 3000, description: "Produtos", category: "produtos" }),
+  l({ amount: 4000, description: "Manutenção Preventiva (#001)", method: "pix" }),
+  l({ amount: 4000, description: "Manutenção Preventiva (#001)", method: "dinheiro" }),
+  l({ amount: 8000, description: "Kit de Peças (#PRD01)", method: "credito" }),
+  l({ amount: 4000, description: "Manutenção Preventiva", method: "pix" }),
+  l({ kind: "saida", amount: 3000, description: "Materiais", category: "materiais" }),
   l({ kind: "saida", amount: 1000, description: "Luz", category: "contas_fixas" }),
   l({ kind: "retirada", amount: 4000, description: "Pró-labore", method: "pix" }),
   // não contam: pendente e fora do período
@@ -48,15 +48,15 @@ describe("Raio-X", () => {
 
   it("saídas por categoria incluem a Retirada Pessoal, com %", () => {
     const by = Object.fromEntries(r.saidasPorCategoria.map((s) => [s.key, [s.amount, s.pct]]));
-    expect(by["produtos"]).toEqual([3000, 38]);
+    expect(by["materiais"]).toEqual([3000, 38]);
     expect(by["contas_fixas"]).toEqual([1000, 13]);
     expect(by["retirada"]).toEqual([4000, 50]);
   });
 
   it("campeões juntam vendas pelo código ou nome e ordenam pelo total faturado", () => {
     expect(r.campeoes).toEqual([
-      { name: "Corte de Cabelo", sku: "001", count: 3, total: 12000 },
-      { name: "Hidratação Capilar", sku: "HID01", count: 1, total: 8000 },
+      { name: "Manutenção Preventiva", sku: "001", count: 3, total: 12000 },
+      { name: "Kit de Peças", sku: "PRD01", count: 1, total: 8000 },
     ]);
   });
 

@@ -1,6 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
@@ -11,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { BottomNav } from "../components/app/BottomNav";
+import { AppFrame } from "../components/app/AppFrame";
 import { Toaster } from "../components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -83,9 +82,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Meu Caixa" },
+      { title: "Meu Negócio no Azul" },
       { name: "description", content: "Controle simples de entradas, saídas e retiradas do seu negócio." },
-      { property: "og:title", content: "Meu Caixa" },
+      { property: "og:title", content: "Meu Negócio no Azul" },
       { property: "og:description", content: "Controle simples de entradas, saídas e retiradas do seu negócio." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -130,9 +129,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
-      <BottomNav />
+      {/* Required: nested routes render here. AppFrame renders <Outlet /> behind the login gate. */}
+      <AppFrame />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );

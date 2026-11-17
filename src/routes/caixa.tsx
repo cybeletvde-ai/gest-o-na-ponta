@@ -24,9 +24,9 @@ import type { Kind, Lancamento } from "@/lib/finance/types";
 export const Route = createFileRoute("/caixa")({
   head: () => ({
     meta: [
-      { title: "Caixa — Meu Caixa" },
+      { title: "Caixa — Meu Negócio no Azul" },
       { name: "description", content: "Extrato do que já aconteceu e contas que vão acontecer." },
-      { property: "og:title", content: "Caixa — Meu Caixa" },
+      { property: "og:title", content: "Caixa — Meu Negócio no Azul" },
       {
         property: "og:description",
         content: "Extrato do que já aconteceu e contas que vão acontecer.",

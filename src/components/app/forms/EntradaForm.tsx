@@ -4,8 +4,9 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { financeActions, useFinance } from "@/lib/finance/store";
+import { financeActions, useFinance, useProfile } from "@/lib/finance/store";
 import {
+  cardFee,
   formatBRL,
   normalizeSku,
   saleDescription,
@@ -33,6 +34,7 @@ export function EntradaForm({
   prefill?: EntradaPrefill | null;
 }) {
   const { servicos } = useFinance();
+  const { profile } = useProfile();
   const [amount, setAmount] = useState(prefill?.amount ?? 0);
   const [description, setDescription] = useState(prefill?.description ?? "");
   const [typing, setTyping] = useState(false);
@@ -41,6 +43,8 @@ export function EntradaForm({
   const [date, setDate] = useState("");
   const [clientName, setClientName] = useState("");
   const [errors, setErrors] = useState<Errors>({});
+
+  const fee = cardFee(amount, method, profile);
 
   const picked = servicos.find((s) => saleDescription(s) === description);
   const suggestions =
@@ -63,6 +67,7 @@ export function EntradaForm({
   function submit() {
     const e: Errors = {};
     if (amount <= 0) e.amount = "Informe o valor.";
+    else if (fee.net <= 0) e.amount = "O valor é menor que a taxa da maquininha.";
     if (!description.trim()) e.description = "Diga o que foi vendido ou feito.";
     if (status === "pending") {
       if (!date) e.date = "Informe a data prevista.";
@@ -72,7 +77,7 @@ export function EntradaForm({
     if (Object.keys(e).length) return;
     financeActions.add({
       kind: "entrada",
-      amount,
+      amount: fee.net,
       description: description.trim(),
       method,
       status,
@@ -80,7 +85,7 @@ export function EntradaForm({
       clientName: status === "pending" ? clientName.trim() : undefined,
     });
     toast.success(status === "done" ? "Entrada salva!" : "Entrada agendada!", {
-      description: `${description.trim()} · ${formatBRL(amount)}`,
+      description: `${description.trim()} · ${formatBRL(fee.net)}`,
     });
     onDone();
   }
@@ -104,7 +109,7 @@ export function EntradaForm({
         <Input
           id="desc-entrada"
           className={inputClass}
-          placeholder="Digite o nome ou código (ex: 001)"
+          placeholder="Serviço prestado, manutenção, venda de produto..."
           autoComplete="off"
           value={description}
           onChange={(e) => onType(e.target.value)}
@@ -162,6 +167,17 @@ export function EntradaForm({
           value={method}
           onChange={setMethod}
         />
+        {fee.pct > 0 && amount > 0 && (
+          <p className="flex flex-wrap justify-between gap-x-3 rounded-xl bg-muted px-3 py-2 text-xs">
+            <span className="text-muted-foreground">
+              Taxa da maquininha ({String(fee.pct).replace(".", ",")}%):{" "}
+              <span className="font-bold text-destructive">- {formatBRL(fee.fee)}</span>
+            </span>
+            <span className="font-bold">
+              Você recebe <span className="text-success">{formatBRL(fee.net)}</span>
+            </span>
+          </p>
+        )}
       </Field>
 
       <Field label="Status">

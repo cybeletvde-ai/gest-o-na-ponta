@@ -15,4 +15,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // NEXT_PUBLIC_* holds the public Supabase URL/publishable key injected by the Vercel integration.
+    envPrefix: ["VITE_", "NEXT_PUBLIC_"],
+    server: {
+      allowedHosts: true,
+    },
+  },
 });

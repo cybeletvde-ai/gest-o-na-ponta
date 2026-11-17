@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixaRouteImport } from './routes/caixa'
+import { Route as EmpresaRouteImport } from './routes/empresa'
 import { Route as RaioXRouteImport } from './routes/raio-x'
 import { Route as ServicosRouteImport } from './routes/servicos'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const CaixaRoute = CaixaRouteImport.update({
   id: '/caixa',
   path: '/caixa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmpresaRoute = EmpresaRouteImport.update({
+  id: '/empresa',
+  path: '/empresa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RaioXRoute = RaioXRouteImport.update({
@@ -34,39 +41,60 @@ const ServicosRoute = ServicosRouteImport.update({
   path: '/servicos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caixa': typeof CaixaRoute
+  '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
   '/servicos': typeof ServicosRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caixa': typeof CaixaRoute
+  '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
   '/servicos': typeof ServicosRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/caixa': typeof CaixaRoute
+  '/empresa': typeof EmpresaRoute
   '/raio-x': typeof RaioXRoute
   '/servicos': typeof ServicosRoute
+  '/auth/callback': typeof AuthCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/caixa' | '/raio-x' | '/servicos'
+  fullPaths:
+    '/' | '/caixa' | '/empresa' | '/raio-x' | '/servicos' | '/auth/callback'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/caixa' | '/raio-x' | '/servicos'
-  id: '__root__' | '/' | '/caixa' | '/raio-x' | '/servicos'
+  to: '/' | '/caixa' | '/empresa' | '/raio-x' | '/servicos' | '/auth/callback'
+  id:
+    | '__root__'
+    | '/'
+    | '/caixa'
+    | '/empresa'
+    | '/raio-x'
+    | '/servicos'
+    | '/auth/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaixaRoute: typeof CaixaRoute
+  EmpresaRoute: typeof EmpresaRoute
   RaioXRoute: typeof RaioXRoute
   ServicosRoute: typeof ServicosRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -85,6 +113,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaixaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/empresa': {
+      id: '/empresa'
+      path: '/empresa'
+      fullPath: '/empresa'
+      preLoaderRoute: typeof EmpresaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/raio-x': {
       id: '/raio-x'
       path: '/raio-x'
@@ -99,14 +134,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaixaRoute: CaixaRoute,
+  EmpresaRoute: EmpresaRoute,
   RaioXRoute: RaioXRoute,
   ServicosRoute: ServicosRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

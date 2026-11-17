@@ -1,5 +1,5 @@
 import { addDays, format } from "date-fns";
-import type { FinanceState, ItemType, Lancamento, Servico } from "./types";
+import type { FinanceState, ItemType, Lancamento, Method, Servico } from "./types";
 
 export function toISODate(d: Date): string {
   return format(d, "yyyy-MM-dd");
@@ -80,12 +80,13 @@ export function formatBRL(cents: number): string {
 
 /* ---------- Catálogo (serviços e produtos) ---------- */
 
+/** Catálogo fictício do Modo Demonstração. */
 export function seedItems(): Servico[] {
   return [
-    { id: "i-001", sku: "001", type: "servico", name: "Corte de Cabelo", price: 4000, cost: 500 },
-    { id: "i-002", sku: "002", type: "servico", name: "Barba Completa", price: 3000, cost: 400 },
-    { id: "i-pom01", sku: "POM01", type: "produto", name: "Pomada Modeladora", price: 4500, cost: 2000 },
-    { id: "i-hid01", sku: "HID01", type: "servico", name: "Hidratação Capilar", price: 8000, cost: 1500 },
+    { id: "i-001", sku: "001", type: "servico", name: "Manutenção Preventiva", price: 15000, cost: 3000 },
+    { id: "i-002", sku: "002", type: "servico", name: "Instalação", price: 20000, cost: 5000 },
+    { id: "i-003", sku: "003", type: "servico", name: "Consultoria (1h)", price: 12000 },
+    { id: "i-prd01", sku: "PRD01", type: "produto", name: "Kit de Peças", price: 8900, cost: 4500 },
   ];
 }
 
@@ -110,7 +111,7 @@ export function profitOf(item: Pick<Servico, "price" | "cost">): number | undefi
   return item.cost ? item.price - item.cost : undefined;
 }
 
-/** Descrição usada ao vender: "Corte de Cabelo (#001)". */
+/** Descrição usada ao vender: "Manutenção Preventiva (#001)". */
 export function saleDescription(item: Pick<Servico, "name" | "sku">): string {
   return `${item.name} (#${item.sku})`;
 }
@@ -147,52 +148,35 @@ export function removeItem(state: FinanceState, id: string): FinanceState {
   return { ...state, servicos: state.servicos.filter((s) => s.id !== id) };
 }
 
+/** Taxa da maquininha: desconta o percentual de crédito/débito do valor bruto. */
+export function cardFee(
+  amount: number,
+  method: Method | undefined,
+  fees: { creditFee: number; debitFee: number },
+): { pct: number; fee: number; net: number } {
+  const pct = method === "credito" ? fees.creditFee : method === "debito" ? fees.debitFee : 0;
+  const fee = Math.round((amount * pct) / 100);
+  return { pct, fee, net: amount - fee };
+}
+
+/** Dados fictícios do Modo Demonstração (nunca usados em contas reais). */
 export function seedState(now: Date = new Date()): FinanceState {
   const t = now.getTime();
+  const day = (n: number) => toISODate(addDays(now, n));
+  const base = { status: "done" as const };
   return {
     servicos: seedItems(),
     lancamentos: [
-      {
-        id: "seed-1",
-        kind: "entrada",
-        amount: 8000,
-        description: "Escova",
-        method: "pix",
-        status: "done",
-        date: todayISO(now),
-        createdAt: t - 3,
-      },
-      {
-        id: "seed-2",
-        kind: "saida",
-        amount: 3500,
-        description: "Shampoo e condicionador",
-        category: "produtos",
-        status: "done",
-        date: toISODate(addDays(now, -1)),
-        createdAt: t - 2,
-      },
-      {
-        id: "seed-3",
-        kind: "saida",
-        amount: 90000,
-        description: "Aluguel",
-        category: "contas_fixas",
-        status: "pending",
-        date: toISODate(addDays(now, 5)),
-        createdAt: t - 1,
-      },
-      {
-        id: "seed-4",
-        kind: "entrada",
-        amount: 7000,
-        description: "Banho e Tosa",
-        method: "pix",
-        status: "pending",
-        date: toISODate(addDays(now, 2)),
-        clientName: "Maria Souza",
-        createdAt: t,
-      },
+      { ...base, id: "demo-1", kind: "entrada", amount: 15000, description: "Manutenção Preventiva (#001)", method: "pix", date: day(0), createdAt: t - 1 },
+      { ...base, id: "demo-2", kind: "entrada", amount: 8900, description: "Kit de Peças (#PRD01)", method: "credito", date: day(0), createdAt: t - 2 },
+      { ...base, id: "demo-3", kind: "entrada", amount: 12000, description: "Consultoria (1h) (#003)", method: "debito", date: day(-1), createdAt: t - 3 },
+      { ...base, id: "demo-4", kind: "entrada", amount: 20000, description: "Instalação (#002)", method: "dinheiro", date: day(-3), createdAt: t - 4 },
+      { ...base, id: "demo-5", kind: "saida", amount: 4500, description: "Materiais de limpeza", category: "materiais", date: day(-1), createdAt: t - 5 },
+      { ...base, id: "demo-6", kind: "saida", amount: 12000, description: "Gasolina", category: "combustivel", date: day(-2), createdAt: t - 6 },
+      { ...base, id: "demo-7", kind: "saida", amount: 7590, description: "DAS MEI", category: "impostos", date: day(-5), createdAt: t - 7 },
+      { ...base, id: "demo-8", kind: "retirada", amount: 30000, description: "Pró-labore", method: "pix", date: day(-4), createdAt: t - 8 },
+      { id: "demo-9", kind: "saida", amount: 90000, description: "Aluguel", category: "contas_fixas", status: "pending", date: day(5), createdAt: t - 9 },
+      { id: "demo-10", kind: "entrada", amount: 20000, description: "Instalação (#002)", method: "pix", status: "pending", date: day(2), clientName: "Carlos Lima", createdAt: t - 10 },
     ],
   };
 }

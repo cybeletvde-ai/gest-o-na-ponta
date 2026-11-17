@@ -23,9 +23,11 @@ export function periodRange(period: Period, now: Date = new Date()) {
 
 export type OutBucket = Category | "retirada";
 export const OUT_BUCKETS: { key: OutBucket; label: string }[] = [
-  { key: "produtos", label: "Produtos/Insumos" },
+  { key: "materiais", label: "Materiais / Insumos" },
+  { key: "combustivel", label: "Combustível / Deslocamento" },
+  { key: "ferramentas", label: "Ferramentas / Equipamentos" },
   { key: "contas_fixas", label: "Contas Fixas" },
-  { key: "impostos", label: "Impostos/MEI" },
+  { key: "impostos", label: "Impostos / MEI" },
   { key: "retirada", label: "Retirada Pessoal" },
   { key: "outros", label: "Outros" },
 ];

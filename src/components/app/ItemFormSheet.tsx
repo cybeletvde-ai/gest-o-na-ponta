@@ -105,7 +105,7 @@ function ItemForm({ item, onDone }: { item: Servico | null; onDone: () => void }
           id="sku"
           className={cn(inputClass, "uppercase placeholder:normal-case")}
           autoComplete="off"
-          placeholder="Ex: 01, CORT01 (ou deixe vazio para gerar automático)"
+          placeholder="Ex: 01, SERV01 (ou deixe vazio para gerar automático)"
           value={sku}
           onChange={(e) => setSku(e.target.value)}
         />
@@ -120,7 +120,7 @@ function ItemForm({ item, onDone }: { item: Servico | null; onDone: () => void }
         <Input
           id="nome-item"
           className={inputClass}
-          placeholder="Ex: Corte Degradê, Pomada Modeladora"
+          placeholder="Ex: Manutenção, instalação, venda de produto"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />

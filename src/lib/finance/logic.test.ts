@@ -1,17 +1,22 @@
 import { describe, expect, it } from "vitest";
 import {
-  digitsToCents, history, nextSku, profitOf, remove, saleDescription, searchItems, seedItems,
-  seedState, settle, skuTaken, summarize, upcoming,
+  cardFee, digitsToCents, history, nextSku, profitOf, remove, saleDescription, searchItems,
+  seedItems, seedState, settle, skuTaken, summarize, upcoming,
 } from "./logic";
 
 const now = new Date(2026, 10, 15, 12, 0);
 
-describe("finance rules", () => {
+describe("finance rules (dados do Modo Demonstração)", () => {
   it("saldo = entradas recebidas − saídas pagas − retiradas, ignorando pendências", () => {
     const s = summarize(seedState(now).lancamentos);
-    expect(s.entradas).toBe(8000);
-    expect(s.saidas).toBe(3500);
-    expect(s.balance).toBe(4500);
+    expect(s.entradas).toBe(55900);
+    expect(s.saidas).toBe(24090);
+    expect(s.retiradas).toBe(30000);
+    expect(s.balance).toBe(1810);
+  });
+
+  it("conta nova começa zerada", () => {
+    expect(summarize([]).balance).toBe(0);
   });
 
   it("retirada diminui o saldo", () => {
@@ -20,31 +25,38 @@ describe("finance rules", () => {
       id: "r", kind: "retirada", amount: 1000, description: "Retirada Pessoal / Pró-labore",
       method: "pix", status: "done", date: "2026-11-15", createdAt: 1,
     });
-    expect(summarize(st.lancamentos).balance).toBe(3500);
+    expect(summarize(st.lancamentos).balance).toBe(810);
   });
 
   it("soma A Receber e A Pagar só das pendências", () => {
     const s = summarize(seedState(now).lancamentos);
-    expect(s.aReceber).toBe(7000);
+    expect(s.aReceber).toBe(20000);
     expect(s.aPagar).toBe(90000);
   });
 
   it("Receber move a pendência para Já aconteceu com a data de hoje e atualiza o saldo", () => {
-    const after = settle(seedState(now), "seed-4", now);
-    expect(upcoming(after.lancamentos).map((l) => l.id)).toEqual(["seed-3"]);
-    const moved = history(after.lancamentos).find((l) => l.id === "seed-4");
+    const after = settle(seedState(now), "demo-10", now);
+    expect(upcoming(after.lancamentos).map((l) => l.id)).toEqual(["demo-9"]);
+    const moved = history(after.lancamentos).find((l) => l.id === "demo-10");
     expect(moved?.date).toBe("2026-11-15");
-    expect(summarize(after.lancamentos).balance).toBe(11500);
+    expect(summarize(after.lancamentos).balance).toBe(21810);
   });
 
   it("Pagar uma conta futura reduz o saldo", () => {
-    const after = settle(seedState(now), "seed-3", now);
-    expect(summarize(after.lancamentos).balance).toBe(4500 - 90000);
+    const after = settle(seedState(now), "demo-9", now);
+    expect(summarize(after.lancamentos).balance).toBe(1810 - 90000);
   });
 
   it("excluir um lançamento remove do saldo", () => {
-    const after = remove(seedState(now), "seed-1");
-    expect(summarize(after.lancamentos).balance).toBe(-3500);
+    const after = remove(seedState(now), "demo-1");
+    expect(summarize(after.lancamentos).balance).toBe(1810 - 15000);
+  });
+
+  it("taxa da maquininha desconta só crédito e débito", () => {
+    const fees = { creditFee: 3.49, debitFee: 1.5 };
+    expect(cardFee(10000, "credito", fees)).toEqual({ pct: 3.49, fee: 349, net: 9651 });
+    expect(cardFee(10000, "debito", fees)).toEqual({ pct: 1.5, fee: 150, net: 9850 });
+    expect(cardFee(10000, "pix", fees)).toEqual({ pct: 0, fee: 0, net: 10000 });
   });
 
   it("valor digitado vira centavos (450 → R$ 4,50)", () => {
@@ -57,33 +69,33 @@ describe("catálogo de serviços e produtos", () => {
   const items = seedItems();
 
   it("começa com os 4 itens de exemplo e seus códigos", () => {
-    expect(items.map((i) => `#${i.sku}`)).toEqual(["#001", "#002", "#POM01", "#HID01"]);
-    expect(items.find((i) => i.sku === "POM01")?.type).toBe("produto");
+    expect(items.map((i) => `#${i.sku}`)).toEqual(["#001", "#002", "#003", "#PRD01"]);
+    expect(items.find((i) => i.sku === "PRD01")?.type).toBe("produto");
   });
 
-  it("código em branco gera o próximo sequencial (#003)", () => {
-    expect(nextSku(items)).toBe("003");
+  it("código em branco gera o próximo sequencial (#004)", () => {
+    expect(nextSku(items)).toBe("004");
     expect(nextSku([])).toBe("001");
   });
 
-  it("lucro = preço de venda − custo (Corte R$ 40 − R$ 5 = R$ 35)", () => {
-    expect(profitOf(items[0]!)).toBe(3500);
+  it("lucro = preço de venda − custo (Manutenção R$ 150 − R$ 30 = R$ 120)", () => {
+    expect(profitOf(items[0]!)).toBe(12000);
     expect(profitOf({ price: 4000, cost: undefined })).toBeUndefined();
   });
 
-  it("Vender usa a descrição com o código: Corte de Cabelo (#001)", () => {
-    expect(saleDescription(items[0]!)).toBe("Corte de Cabelo (#001)");
+  it("Vender usa a descrição com o código: Manutenção Preventiva (#001)", () => {
+    expect(saleDescription(items[0]!)).toBe("Manutenção Preventiva (#001)");
   });
 
   it("busca pelo nome (sem acento) ou pelo código, com filtro de tipo", () => {
-    expect(searchItems(items, "hidratacao").map((i) => i.sku)).toEqual(["HID01"]);
-    expect(searchItems(items, "#pom").map((i) => i.sku)).toEqual(["POM01"]);
-    expect(searchItems(items, "", "produto").map((i) => i.sku)).toEqual(["POM01"]);
+    expect(searchItems(items, "manutencao").map((i) => i.sku)).toEqual(["001"]);
+    expect(searchItems(items, "#prd").map((i) => i.sku)).toEqual(["PRD01"]);
+    expect(searchItems(items, "", "produto").map((i) => i.sku)).toEqual(["PRD01"]);
     expect(searchItems(items, "", "servico")).toHaveLength(3);
   });
 
   it("não aceita código repetido", () => {
-    expect(skuTaken(items, "#pom01")).toBe(true);
-    expect(skuTaken(items, "POM01", "i-pom01")).toBe(false);
+    expect(skuTaken(items, "#prd01")).toBe(true);
+    expect(skuTaken(items, "PRD01", "i-prd01")).toBe(false);
   });
 });
