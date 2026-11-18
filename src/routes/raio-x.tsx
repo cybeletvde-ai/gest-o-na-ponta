@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   Banknote,
   CreditCard,
+  Download,
   PieChart,
   QrCode,
   ScanLine,
@@ -14,7 +15,10 @@ import {
 } from "lucide-react";
 
 import { PageShell } from "@/components/app/PageShell";
-import { useFinance } from "@/lib/finance/store";
+import { useFinance, useProfile } from "@/lib/finance/store";
+import { buildReportCsv, reportFileName } from "@/lib/finance/report";
+import { csvBlob, deliverFile } from "@/lib/ui/download";
+import { Button } from "@/components/ui/button";
 import { formatBRL } from "@/lib/finance/logic";
 import {
   OUT_BUCKETS,
@@ -69,10 +73,33 @@ const methodIcon: Record<Method, LucideIcon> = {
 function RaioXPage() {
   const { lancamentos, servicos } = useFinance();
   const [period, setPeriod] = useState<Period>("este_mes");
-  const r = raioX(lancamentos, servicos, periodRange(period));
+  const { profile } = useProfile();
+  const range = periodRange(period);
+  const r = raioX(lancamentos, servicos, range);
+
+  function exportar() {
+    const csv = buildReportCsv(lancamentos, servicos, period, range, profile.nomeFantasia);
+    void deliverFile(csvBlob(csv), reportFileName(range));
+  }
 
   return (
-    <PageShell title="Raio-X" subtitle="A saúde do seu negócio" icon={ScanLine}>
+    <PageShell
+      title="Raio-X"
+      subtitle="A saúde do seu negócio"
+      icon={ScanLine}
+      action={
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={exportar}
+          className="h-9 shrink-0 gap-1.5 rounded-xl px-2.5 text-xs font-bold text-primary"
+        >
+          <Download className="size-4" />
+          Exportar Relatório
+        </Button>
+      }
+    >
       <div
         className="mb-4 grid grid-cols-3 gap-1 rounded-2xl bg-muted p-1"
         role="group"

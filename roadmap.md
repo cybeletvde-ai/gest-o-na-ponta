@@ -11,3 +11,7 @@
 - [x] Login / Criar Conta / Esqueci senha / Modo Demonstração
 - [x] Início header "Olá, {Nome Fantasia}" + gear → Minha Empresa
 - [x] Minha Empresa & Configurações (admin, fiscal + BrasilAPI CNPJ, endereço + ViaCEP, salvar, logout)
+- [x] Raio-X "Exportar Relatório" CSV (; separated, UTF-8, period entries + lucro summary)
+- [x] Installable on phone: manifest, icons, mobile meta tags
+- [x] Dismissible "Instalar App no Celular" card with Android/iPhone steps
+- [x] Clean build check before publishing

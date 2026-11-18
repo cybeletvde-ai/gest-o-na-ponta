@@ -15,7 +15,7 @@ export function PageShell({
   children?: ReactNode;
 }) {
   return (
-    <main className="mx-auto min-h-screen max-w-md px-5 pt-8 pb-[calc(9rem+env(safe-area-inset-bottom))]">
+    <main className="mx-auto min-h-screen max-w-md px-5 pt-[calc(2rem+env(safe-area-inset-top))] pb-[calc(9rem+env(safe-area-inset-bottom))]">
       <header className="mb-6 flex items-center gap-3">
         <span className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-primary">
           <Icon className="size-6" />

@@ -3,6 +3,7 @@ import { Home, Settings } from "lucide-react";
 
 import { PageShell } from "@/components/app/PageShell";
 import { WelcomeCard } from "@/components/app/WelcomeCard";
+import { InstallAppCard } from "@/components/app/InstallAppCard";
 import { useFinance, useProfile } from "@/lib/finance/store";
 import { formatBRL, summarize } from "@/lib/finance/logic";
 import { firstName } from "@/lib/business/format";
@@ -75,6 +76,7 @@ function Index() {
         </div>
       </section>
       {ready && lancamentos.length === 0 && <WelcomeCard name={name} />}
+      <InstallAppCard />
     </PageShell>
   );
 }

@@ -35,3 +35,5 @@ use the editor.
 - Raio-X reports are computed by pure functions in `src/lib/finance/insights.ts` (with tests) from the same lançamentos and catalog, so the report always matches Caixa without storing extra data.
 - The + sheet's open/mode/prefill state lives in `src/lib/ui/quick-actions.ts`, so any screen (e.g. Vender) can open a prefilled Registrar Entrada.
 - Login gating is done by `src/components/app/AppFrame.tsx` (session from `src/lib/auth/session.ts`), not an `_authenticated` layout, because Modo Demonstração must open the app without an account; public pages (`/auth/*`, `/reset-password`) are listed there.
+- The Raio-X CSV export is built by pure functions in `src/lib/finance/report.ts` (with tests) on top of `raioX()`, so the file always matches the screen totals for the selected period.
+- Phone install is manifest-only (`public/manifest.webmanifest` + icons + head tags in `__root.tsx`), with no service worker, so previews never serve stale cached code.
