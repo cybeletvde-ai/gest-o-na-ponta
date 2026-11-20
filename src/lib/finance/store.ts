@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { getSupabase } from "@/lib/supabase/client";
 import { EMPTY_PROFILE, PROFILE_COLUMNS, type Profile } from "@/lib/business/types";
+import { parseSubscription, type Subscription } from "@/lib/billing/subscription";
 import * as logic from "./logic";
 import type { FinanceState, Lancamento, Servico } from "./types";
 
@@ -14,10 +15,18 @@ interface Snapshot {
   profile: Profile;
   ready: boolean;
   mode: Mode;
+  /** Assinatura da conta (null no Modo Demonstração ou se não carregou). */
+  subscription: Subscription | null;
 }
 
 const EMPTY: FinanceState = { lancamentos: [], servicos: [] };
-const SERVER: Snapshot = { finance: EMPTY, profile: EMPTY_PROFILE, ready: false, mode: "none" };
+const SERVER: Snapshot = {
+  finance: EMPTY,
+  profile: EMPTY_PROFILE,
+  ready: false,
+  mode: "none",
+  subscription: null,
+};
 
 let snap: Snapshot = SERVER;
 let userId: string | null = null;
@@ -51,6 +60,13 @@ export function useProfile(): { profile: Profile; ready: boolean; isDemo: boolea
   const s = useSnapshot();
   return { profile: s.profile, ready: s.ready, isDemo: s.mode === "demo" };
 }
+
+export function useSubscription(): { subscription: Subscription | null; ready: boolean; mode: Mode } {
+  const s = useSnapshot();
+  return { subscription: s.subscription, ready: s.ready, mode: s.mode };
+}
+
+const SUBSCRIPTION_COLUMNS = "status_assinatura, trial_ate";
 
 /* ---------- Linhas do banco ↔ app ---------- */
 
@@ -144,14 +160,24 @@ function toProfileRow(p: Profile) {
 export async function loadForUser(id: string, email: string | undefined) {
   const token = ++loadToken;
   userId = id;
-  set({ finance: EMPTY, profile: { ...EMPTY_PROFILE, email: email ?? "" }, ready: false, mode: "user" });
+  set({
+    finance: EMPTY,
+    profile: { ...EMPTY_PROFILE, email: email ?? "" },
+    ready: false,
+    mode: "user",
+    subscription: null,
+  });
   const sb = getSupabase();
   const [lanc, serv, prof] = await Promise.all([
     sb
       .from("lancamentos")
       .select("id, kind, amount, description, method, category, status, date, client_name, created_at"),
     sb.from("servicos").select("id, sku, type, name, price, cost").order("sku"),
-    sb.from("profiles").select(Object.values(PROFILE_COLUMNS).join(", ")).eq("id", id).maybeSingle(),
+    sb
+      .from("profiles")
+      .select(`${Object.values(PROFILE_COLUMNS).join(", ")}, ${SUBSCRIPTION_COLUMNS}`)
+      .eq("id", id)
+      .maybeSingle(),
   ]);
   if (token !== loadToken) return;
   if (lanc.error || serv.error || prof.error) {
@@ -165,8 +191,23 @@ export async function loadForUser(id: string, email: string | undefined) {
       servicos: ((serv.data ?? []) as ServicoRow[]).map(fromServicoRow),
     },
     profile,
+    subscription: parseSubscription(prof.data as Record<string, unknown> | null),
     ready: true,
   });
+}
+
+/** Relê só a assinatura (ex.: depois de pagar na Kiwify e voltar ao app). */
+export async function refreshSubscription() {
+  if (snap.mode !== "user" || !userId) return;
+  const id = userId;
+  const { data, error } = await getSupabase()
+    .from("profiles")
+    .select(SUBSCRIPTION_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error || snap.mode !== "user" || userId !== id) return;
+  const subscription = parseSubscription(data as Record<string, unknown> | null);
+  if (subscription) set({ subscription });
 }
 
 export function loadDemo() {
@@ -185,6 +226,7 @@ export function loadDemo() {
     },
     ready: true,
     mode: "demo",
+    subscription: null,
   });
 }
 

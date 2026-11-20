@@ -37,3 +37,5 @@ use the editor.
 - Login gating is done by `src/components/app/AppFrame.tsx` (session from `src/lib/auth/session.ts`), not an `_authenticated` layout, because Modo Demonstração must open the app without an account; public pages (`/auth/*`, `/reset-password`) are listed there.
 - The Raio-X CSV export is built by pure functions in `src/lib/finance/report.ts` (with tests) on top of `raioX()`, so the file always matches the screen totals for the selected period.
 - Phone install is manifest-only (`public/manifest.webmanifest` + icons + head tags in `__root.tsx`), with no service worker, so previews never serve stale cached code.
+- Subscription access rules live in `src/lib/billing/subscription.ts` (pure, tested) and are enforced in `AppFrame`; only the Kiwify webhook (`/api/public/kiwify-webhook`, HMAC-verified) changes status via a service-role-only SQL function, and a trigger stops users from editing their own status/trial date.
+- `.env` holds only publishable Cloud values and must stay committed (not gitignored): the publish build reads `VITE_SUPABASE_*` from it, and without them the published app crashes on load.

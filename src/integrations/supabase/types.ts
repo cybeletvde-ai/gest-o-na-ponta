@@ -80,7 +80,9 @@ export type Database = {
           numero: string | null
           phone: string | null
           razao_social: string | null
+          status_assinatura: string
           telefone: string | null
+          trial_ate: string
           uf: string | null
           updated_at: string
         }
@@ -107,7 +109,9 @@ export type Database = {
           numero?: string | null
           phone?: string | null
           razao_social?: string | null
+          status_assinatura?: string
           telefone?: string | null
+          trial_ate?: string
           uf?: string | null
           updated_at?: string
         }
@@ -134,7 +138,9 @@ export type Database = {
           numero?: string | null
           phone?: string | null
           razao_social?: string | null
+          status_assinatura?: string
           telefone?: string | null
+          trial_ate?: string
           uf?: string | null
           updated_at?: string
         }
@@ -178,7 +184,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      set_subscription_status_by_email: {
+        Args: { _email: string; _status: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

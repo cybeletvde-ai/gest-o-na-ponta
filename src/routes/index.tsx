@@ -4,6 +4,7 @@ import { Home, Settings } from "lucide-react";
 import { PageShell } from "@/components/app/PageShell";
 import { WelcomeCard } from "@/components/app/WelcomeCard";
 import { InstallAppCard } from "@/components/app/InstallAppCard";
+import { TrialBanner } from "@/components/billing/TrialBanner";
 import { useFinance, useProfile } from "@/lib/finance/store";
 import { formatBRL, summarize } from "@/lib/finance/logic";
 import { firstName } from "@/lib/business/format";
@@ -57,6 +58,7 @@ function Index() {
         </Link>
       }
     >
+      <TrialBanner />
       <section className="rounded-3xl bg-hero p-6 text-primary-foreground shadow-action">
         <p className="text-sm font-medium opacity-80">Saldo em caixa</p>
         <p

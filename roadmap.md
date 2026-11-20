@@ -15,3 +15,8 @@
 - [x] Installable on phone: manifest, icons, mobile meta tags
 - [x] Dismissible "Instalar App no Celular" card with Android/iPhone steps
 - [x] Clean build check before publishing
+- [x] 7-day trial + subscription gate (trial banner, expired screen, Kiwify checkout link constant)
+- [x] Kiwify webhook updates subscription status by buyer e-mail
+- [x] Fix published link crash (database settings missing from publish build)
+- [ ] Kiwify webhook token saved as a secret (waiting on user)
+- [ ] Real Kiwify checkout link (waiting on user)

@@ -1,14 +1,30 @@
+import { useEffect } from "react";
 import { Outlet, useRouterState } from "@tanstack/react-router";
 import { FlaskConical } from "lucide-react";
 
 import { AuthScreen } from "@/components/auth/AuthScreen";
 import { BrandMark } from "@/components/auth/BrandMark";
+import { SubscriptionExpired } from "@/components/billing/SubscriptionExpired";
 import { useSession } from "@/lib/auth/session";
+import { accessFor } from "@/lib/billing/subscription";
+import { refreshSubscription, useSubscription } from "@/lib/finance/store";
 import { BottomNav } from "./BottomNav";
 
 export function AppFrame() {
   const session = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const sub = useSubscription();
+  const signedIn = session.status === "signedIn";
+
+  // Ao voltar para o app (ex.: depois de pagar na Kiwify), relê a assinatura.
+  useEffect(() => {
+    if (!signedIn) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void refreshSubscription();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [signedIn]);
 
   if (pathname.startsWith("/auth/") || pathname === "/reset-password") return <Outlet />;
 
@@ -25,6 +41,11 @@ export function AppFrame() {
   }
 
   if (session.status === "signedOut") return <AuthScreen />;
+
+  if (signedIn && sub.mode === "user" && sub.ready) {
+    const access = accessFor(sub.subscription);
+    if (access.kind === "expirado") return <SubscriptionExpired reason={access.reason} />;
+  }
 
   return (
     <>

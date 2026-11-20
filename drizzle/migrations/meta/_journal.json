@@ -8,6 +8,13 @@
       "when": 1794954987913,
       "tag": "0000_accounts_and_business_data",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795218321032,
+      "tag": "0001_subscription_trial_kiwify",
+      "breakpoints": true
     }
   ]
 }
